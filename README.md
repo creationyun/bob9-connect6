@@ -4,6 +4,13 @@ BoB 9기 보안제품개발트랙 경연단계
 
 육목 프로토콜 그리고 서버 / 클라이언트
 
+## 프로그램 요구사항
+
++ server
+  + Ubuntu 18.04 이상
++ client
+  + Ubuntu 18.04, Qt 6.0
+
 ## 게임 진행 흐름 그림
 
 ![image-20210111210600222](images/image-20210111210600222.png)
@@ -58,10 +65,10 @@ GAME_START는 2가지 목적을 가진다.
 + PlayerNum
   + request일 때, 0x00
   + response일 때, 서버에서 부여한 Player 번호
-+ DataLength = 31
++ DataLength = NameLength + 2
 + Data
   + ReqResFlag (1B): Request이면 0x00, Response이면 0x01
-  + NameLength (1B): Name 필드의 길이 (바이트) (최대 255까지 가능)
+  + NameLength (1B): Name 필드의 길이 (바이트)
   + Name ((NameLength)B): 플레이어의 이름. UTF-8 포맷으로 이루어짐.
     + request일 때, Name은 본인의 이름(닉네임)을 의미한다.
     + response일 때, Name은 상대방 플레이어의 이름(닉네임)을 의미한다.
