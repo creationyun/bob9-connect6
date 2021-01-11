@@ -9,7 +9,7 @@ BoB 9기 보안제품개발트랙 경연단계
 + server
   + Ubuntu 18.04 이상
 + client
-  + Ubuntu 18.04, Qt 6.0
+  + Ubuntu 18.04 이상, Qt 5.15.2
 
 ## 게임 진행 흐름 그림
 
