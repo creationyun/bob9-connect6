@@ -33,7 +33,7 @@ BoB 9기 보안제품개발트랙 경연단계
 
 ## 육목 좌표계
 
-![image-board](images\image-board.png)
+![image-board](images/image-board.png)
 
 ## 육목 프로토콜 Type 목록
 
