@@ -8,10 +8,14 @@ int main(int argc, char *argv[])
 	int opt = 1;
 	int addrlen = sizeof(address);
 
-	char buffer[1025];
+	unsigned char recv[1025], sending[1025];
 	fd_set readfds;
 
-	char *message = "Connect6 Server v0.1 (beta) \r\n";
+	// char *message = "Connect6 Server v0.1 (beta) \r\n";
+	char player_name[MAX_PLAYER][MAX_NAME_LENGTH] = {};
+	int player_game_joined[MAX_PLAYER] = {};
+	int game_started = 0;
+	uint8_t server_board[BOARD_SIZE][BOARD_SIZE] = {};
 	
 	// Initialize all client_socket[] to 0 so not checked
 	for (i = 0; i < MAX_PLAYER; i++)
@@ -109,12 +113,14 @@ int main(int argc, char *argv[])
 				new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
 			// send new connection greeting message
+			/*
 			if (send(new_socket, message, strlen(message), 0) != strlen(message))
 			{
 				perror("send");
 			}
 
 			puts("Welcome message sent successfully");
+			*/
 
 			// add new socket to array of sockets
 			for (i = 0; i < MAX_PLAYER; i++)
@@ -128,20 +134,28 @@ int main(int argc, char *argv[])
 					break;
 				}
 			}
+
+			// but if there are no socket, send ERROR packet
 		}
 
-		// else its some IO operation on some other socket
+		// else it's some IO operation on some other socket
 		for (i = 0; i < MAX_PLAYER; i++)
 		{
+			// Protocol header and data for parsing and sending
+			struct Connect6ProtocolHdr hdr;
+			struct GameStartData gsd;
+			struct PutTurnData ptd;
+			struct GameOverData god;
+
 			sd = client_socket[i];
 
 			if (FD_ISSET(sd, &readfds))
 			{
 				// check if it was for closing, and also read the
 				// incoming message
-				if ((valread = read(sd, buffer, 1024)) == 0)
+				if ((valread = read(sd, recv, 1024)) == 0)
 				{
-					// somebody disconneced, get his details and print
+					// somebody disconnected, get his details and print
 					getpeername(sd, (struct sockaddr *)&address,
 							(socklen_t *)&addrlen);
 					printf("Host disconnected, ip %s, port %d \n",
@@ -155,10 +169,49 @@ int main(int argc, char *argv[])
 				// echo back the message that came in
 				else
 				{
+					// get his details and print
+					getpeername(sd, (struct sockaddr *)&address,
+							(socklen_t *)&addrlen);
+
+					hdr_parsing(recv, &hdr);
+
+					switch(hdr.type)
+					{
+						case GAME_START:
+						printf("GAME_START packet received by %s\n", inet_ntoa(address.sin_addr));
+						break;
+
+						case PUT:
+						printf("PUT packet received by %s\n", inet_ntoa(address.sin_addr));
+						break;
+
+						case TURN:
+						printf("TURN packet received by %s\n", inet_ntoa(address.sin_addr));
+						break;
+
+						case GAME_OVER:
+						printf("GAME_OVER packet received by %s\n", inet_ntoa(address.sin_addr));
+						break;
+
+						case ERROR:
+						printf("ERROR packet received by %s\n", inet_ntoa(address.sin_addr));
+						break;
+
+						case TIMEOUT:
+						printf("TIMEOUT packet received by %s\n", inet_ntoa(address.sin_addr));
+						break;
+
+						case GAME_DISCARD:
+						printf("GAME_DISCARD packet received by %s\n", inet_ntoa(address.sin_addr));
+						break;
+
+						default:
+						printf("Illegal packet received by %s\n", inet_ntoa(address.sin_addr));
+					}
+
 					// set the string terminating NULL byte on the end
 					// of the data read
-					buffer[valread] = '\0';
-					send(sd, buffer, strlen(buffer), 0);
+					// send(sd, sending, , 0);
 				}
 			}
 		}
