@@ -4,7 +4,7 @@
 void EXPORTED hdr_parsing(const unsigned char *payload, size_t payload_size, struct Connect6ProtocolHdr *header)
 {
     if (header == NULL) return;
-    if (payload_size < 4) return; 
+    if (payload_size < PROTOCOL_HEADER_SIZE) return; 
 
     header->version = payload[0];
     header->type = payload[1];
@@ -93,7 +93,7 @@ void EXPORTED make_game_start_payload(unsigned char *payload, size_t payload_siz
                                       const uint8_t player_num, const struct GameStartData data)
 {
     int i;
-    size_t desired_len = data.name_length + 2 + 4;
+    size_t desired_len = data.name_length + 2 + PROTOCOL_HEADER_SIZE;
 
     if (payload == NULL) return;
     if (payload_size < desired_len) return;
@@ -120,7 +120,7 @@ void EXPORTED make_put_payload(unsigned char *payload, size_t payload_size, size
                                const uint8_t player_num, const struct PutTurnData data)
 {
     int i;
-    size_t desired_len = data.coord_num * 2 + 1 + 4;
+    size_t desired_len = data.coord_num * 2 + 1 + PROTOCOL_HEADER_SIZE;
 
     if (payload == NULL) return;
     if (payload_size < desired_len) return;
@@ -147,7 +147,7 @@ void EXPORTED make_turn_payload(unsigned char *payload, size_t payload_size, siz
                                 const uint8_t player_num, const struct PutTurnData data)
 {
     int i;
-    size_t desired_len = data.coord_num * 2 + 1 + 4;
+    size_t desired_len = data.coord_num * 2 + 1 + PROTOCOL_HEADER_SIZE;
 
     if (payload == NULL) return;
     if (payload_size < desired_len) return;
@@ -174,7 +174,7 @@ void EXPORTED make_game_over_payload(unsigned char *payload, size_t payload_size
                                      const uint8_t player_num, const struct GameOverData data)
 {
     int i;
-    size_t desired_len = data.coord_num * 2 + 2 + 4;
+    size_t desired_len = data.coord_num * 2 + 2 + PROTOCOL_HEADER_SIZE;
 
     if (payload == NULL) return;
     if (payload_size < desired_len) return;
@@ -201,7 +201,7 @@ void EXPORTED make_game_over_payload(unsigned char *payload, size_t payload_size
 void EXPORTED make_error_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
                                  const uint8_t player_num, const uint8_t error_type)
 {
-    size_t desired_len = 5;
+    size_t desired_len = PROTOCOL_HEADER_SIZE + 1;
 
     if (payload == NULL) return;
     if (payload_size < desired_len) return;
@@ -223,7 +223,7 @@ void EXPORTED make_error_payload(unsigned char *payload, size_t payload_size, si
 void EXPORTED make_timeout_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
                                    const uint8_t player_num)
 {
-    size_t desired_len = 4;
+    size_t desired_len = PROTOCOL_HEADER_SIZE;
 
     if (payload == NULL) return;
     if (payload_size < desired_len) return;
@@ -242,7 +242,7 @@ void EXPORTED make_timeout_payload(unsigned char *payload, size_t payload_size, 
 void EXPORTED make_game_discard_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
                                         const uint8_t player_num)
 {
-    size_t desired_len = 4;
+    size_t desired_len = PROTOCOL_HEADER_SIZE;
 
     if (payload == NULL) return;
     if (payload_size < desired_len) return;

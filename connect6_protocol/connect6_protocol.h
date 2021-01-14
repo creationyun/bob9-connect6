@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CONNECT6_PROTOCOL_H__
+#define __CONNECT6_PROTOCOL_H__
 
 #include <stdint.h>
 #include <stddef.h>
@@ -28,6 +29,7 @@
     #endif
 #endif
 
+#define PROTOCOL_HEADER_SIZE 4
 #define PROTOCOL_VER 0
 #define MAX_NAME_LENGTH 100
 #define BOARD_SIZE 19
@@ -115,4 +117,6 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

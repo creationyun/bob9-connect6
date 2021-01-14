@@ -2,47 +2,64 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>740</width>
+    <height>580</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>740</width>
+    <height>580</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>740</width>
+    <height>580</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Connect6</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGraphicsView" name="Connect6Board">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>500</width>
-      <height>500</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pbGameStartButton">
+   <widget class="QPushButton" name="pbSinglePlayButton">
     <property name="geometry">
      <rect>
       <x>540</x>
       <y>20</y>
-      <width>241</width>
+      <width>181</width>
       <height>51</height>
      </rect>
     </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
     <property name="text">
-     <string>Game Start</string>
+     <string>Single Play</string>
     </property>
    </widget>
    <widget class="QLCDNumber" name="lcdNumber">
     <property name="geometry">
      <rect>
-      <x>543</x>
-      <y>90</y>
-      <width>101</width>
+      <x>540</x>
+      <y>160</y>
+      <width>71</width>
       <height>61</height>
      </rect>
     </property>
@@ -56,9 +73,9 @@
    <widget class="QLCDNumber" name="lcdNumber_2">
     <property name="geometry">
      <rect>
-      <x>670</x>
-      <y>90</y>
-      <width>101</width>
+      <x>650</x>
+      <y>160</y>
+      <width>71</width>
       <height>61</height>
      </rect>
     </property>
@@ -75,13 +92,54 @@
      <number>0</number>
     </property>
    </widget>
+   <widget class="QGraphicsView" name="gvConnect6Board">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>500</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbMultiPlayButton">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>90</y>
+      <width>181</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Muiti Play</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>740</width>
      <height>22</height>
     </rect>
    </property>

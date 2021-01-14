@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QInputDialog>
 #include <QTcpSocket>
+#include <QGraphicsScene>
 #include "../connect6_protocol/connect6_protocol.h"
 
 // Fixed Game Options
@@ -24,9 +25,13 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pbGameStartButton_clicked();
+    void on_pbSinglePlayButton_clicked();
+
+    void on_pbMultiPlayButton_clicked();
 
 private:
     Ui::MainWindow *ui;
+
+    QGraphicsScene *scene;
 };
 #endif // MAINWINDOW_H

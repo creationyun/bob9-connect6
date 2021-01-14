@@ -6,15 +6,39 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Set scene in Connect6 game board graphic view
+    scene = new QGraphicsScene(this);
+    ui->gvConnect6Board->setScene(scene);
+
+    // Use brush with board color and pen
+    QBrush boardBrush(QColor(220, 179, 92));
+    QPen outlinePen(Qt::black);
+    outlinePen.setWidth(1);
+
+    // Draw whole board
+    scene->addRect(-12.5, -12.5, 500-25, 500-25, outlinePen, boardBrush);
+
+    // Draw blocks (19 x 19)
+    for (int i = 0; i < BOARD_SIZE - 1; i++) {
+        for (int j = 0; j < BOARD_SIZE - 1; j++) {
+            scene->addRect(25*i, 25*j, 25, 25, outlinePen, boardBrush);
+        }
+    }
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete scene;
 }
 
+void MainWindow::on_pbSinglePlayButton_clicked()
+{
 
-void MainWindow::on_pbGameStartButton_clicked()
+}
+
+void MainWindow::on_pbMultiPlayButton_clicked()
 {
     bool ok;
     QString addr = QInputDialog::getText(this, tr("Connect to Server"),
@@ -48,11 +72,11 @@ void MainWindow::on_pbGameStartButton_clicked()
 
         // Send
         socket->write((const char *)payload, payload_len);
-        //socket->waitForReadyRead();
+        socket->waitForReadyRead();
 
-        //qDebug() << "Reading: " << socket->bytesAvailable();
+        qDebug() << "Reading: " << socket->bytesAvailable();
 
-        //qDebug() << socket->readAll();
+        qDebug() << socket->readAll();
 
         // Disconnect
         socket->close();

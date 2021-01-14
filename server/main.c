@@ -1,221 +1,184 @@
 #include "server.h"
 
+
 int main(int argc, char *argv[])
 {
-	int master_socket, new_socket, client_socket[MAX_PLAYER], activity,
-	    i, valread, sd, max_sd;
-	struct sockaddr_in address;
-	int opt = 1;
-	int addrlen = sizeof(address);
+    int master_socket, new_socket, client_socket[MAX_PLAYER], activity,
+        i, valread, sd, max_sd;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
 
-	unsigned char recv[1025], sending[1025];
-	fd_set readfds;
+    unsigned char recv[1025];
+    fd_set readfds;
 
-	// char *message = "Connect6 Server v0.1 (beta) \r\n";
-	char player_name[MAX_PLAYER][MAX_NAME_LENGTH] = {};
-	int player_game_joined[MAX_PLAYER] = {};
-	int game_started = 0;
-	uint8_t server_board[BOARD_SIZE][BOARD_SIZE] = {};
-	
-	// Initialize all client_socket[] to 0 so not checked
-	for (i = 0; i < MAX_PLAYER; i++)
-	{
-		client_socket[i] = 0;
-	}
+    // char *message = "Connect6 Server v0.1 (beta) \r\n";
+    
+    // Initialize all client_socket[] to 0 so not checked
+    for (i = 0; i < MAX_PLAYER; i++)
+    {
+        client_socket[i] = 0;
+    }
 
-	// Create a master socket
+    // Create a master socket
 
-	if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-	{
-		perror("socket failed");
-		exit(EXIT_FAILURE);
-	}
+    if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
 
-	// Set master socket to allow multiple connections,
-	// this is just a good habit, it will work without this
-	if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR,
-				(char *)&opt, sizeof(opt)) < 0)
-	{
-		perror("setsockopt");
-		exit(EXIT_FAILURE);
-	}
+    // Set master socket to allow multiple connections,
+    // this is just a good habit, it will work without this
+    if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR,
+                (char *)&opt, sizeof(opt)) < 0)
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
 
-	// Type of socket created
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(PORT);
+    // Type of socket created
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
 
-	// Bind the socket to any, port 8089
-	if (bind(master_socket, (struct sockaddr *)&address,
-				sizeof(address)) < 0)
-	{
-		perror("bind failed");
-		exit(EXIT_FAILURE);
-	}
+    // Bind the socket to any, port 8089
+    if (bind(master_socket, (struct sockaddr *)&address,
+                sizeof(address)) < 0)
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
 
-	printf("Listener on port %d \n", PORT);
+    printf("Listener on port %d \n", PORT);
 
-	// Try to specify maximum of 3 pending connections for he master socket
-	if (listen(master_socket, 3) < 0)
-	{
-		perror("listen");
-		exit(EXIT_FAILURE);
-	}
+    // Try to specify maximum of 3 pending connections for he master socket
+    if (listen(master_socket, 3) < 0)
+    {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
 
-	// Accept the incoming connection
-	puts("Waiting for connections ...");
+    // Accept the incoming connection
+    puts("Waiting for connections ...");
 
-	while (1)
-	{
-		// Clear the socket set
-		FD_ZERO(&readfds);
+    while (1)
+    {
+        // Clear the socket set
+        FD_ZERO(&readfds);
 
-		// Add master socket to set
-		FD_SET(master_socket, &readfds);
-		max_sd = master_socket;
+        // Add master socket to set
+        FD_SET(master_socket, &readfds);
+        max_sd = master_socket;
 
-		for (i = 0; i < MAX_PLAYER; i++)
-		{
-			// socket descriptor
-			sd = client_socket[i];
+        for (i = 0; i < MAX_PLAYER; i++)
+        {
+            // socket descriptor
+            sd = client_socket[i];
 
-			// if valid socket descriptor then add to read list
-			if (sd > 0)
-				FD_SET(sd, &readfds);
+            // if valid socket descriptor then add to read list
+            if (sd > 0)
+                FD_SET(sd, &readfds);
 
-			// highest file descriptor number, need it for the select function
-			if (sd > max_sd)
-				max_sd = sd;
-		}
+            // highest file descriptor number, need it for the select function
+            if (sd > max_sd)
+                max_sd = sd;
+        }
 
-		// wait for an activity on one of the sockets, timeout is NULL,
-		// so wait indefinitely
-		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+        // wait for an activity on one of the sockets, timeout is NULL,
+        // so wait indefinitely
+        activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
-		if ((activity < 0) && (errno != EINTR))
-		{
-			printf("select error");
-		}
+        if ((activity < 0) && (errno != EINTR))
+        {
+            printf("select error");
+        }
 
-		// if something happened on the master socket,
-		// then it's an incoming connection
-		if (FD_ISSET(master_socket, &readfds))
-		{
-			if ((new_socket = accept(master_socket,
-				(struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
-			{
-				perror("accept");
-				exit(EXIT_FAILURE);
-			}
+        // if something happened on the master socket,
+        // then it's an incoming connection
+        if (FD_ISSET(master_socket, &readfds))
+        {
+            if ((new_socket = accept(master_socket,
+                (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
+            {
+                perror("accept");
+                exit(EXIT_FAILURE);
+            }
 
-			// inform user of socket number - used in send and receive commands
-			printf("New connection, socket fd is %d, ip is: %s, port: %d\n",
-				new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+            // inform user of socket number - used in send and receive commands
+            printf("New connection, socket fd is %d, ip is: %s, port: %d\n",
+                new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
-			// send new connection greeting message
-			/*
-			if (send(new_socket, message, strlen(message), 0) != strlen(message))
-			{
-				perror("send");
-			}
+            // send new connection greeting message
+            /*
+            if (send(new_socket, message, strlen(message), 0) != strlen(message))
+            {
+                perror("send");
+            }
 
-			puts("Welcome message sent successfully");
-			*/
+            puts("Welcome message sent successfully");
+            */
 
-			// add new socket to array of sockets
-			for (i = 0; i < MAX_PLAYER; i++)
-			{
-				// if position is empty
-				if (client_socket[i] == 0)
-				{
-					client_socket[i] = new_socket;
-					printf("Adding to list of sockets as %d\n", i);
+            // add new socket to array of sockets
+            for (i = 0; i < MAX_PLAYER; i++)
+            {
+                // if position is empty
+                if (client_socket[i] == 0)
+                {
+                    client_socket[i] = new_socket;
+                    printf("Adding to list of sockets as %d\n", i);
 
-					break;
-				}
-			}
+                    break;
+                }
+            }
 
-			// but if there are no socket, send ERROR packet
-		}
+            // but if there are no socket, send ERROR packet
+        }
 
-		// else it's some IO operation on some other socket
-		for (i = 0; i < MAX_PLAYER; i++)
-		{
-			// Protocol header and data for parsing and sending
-			struct Connect6ProtocolHdr hdr;
-			struct GameStartData gsd;
-			struct PutTurnData ptd;
-			struct GameOverData god;
+        // else it's some IO operation on some other socket
+        for (i = 0; i < MAX_PLAYER; i++)
+        {
+            
 
-			sd = client_socket[i];
+            sd = client_socket[i];
 
-			if (FD_ISSET(sd, &readfds))
-			{
-				// check if it was for closing, and also read the
-				// incoming message
-				if ((valread = read(sd, recv, 1024)) == 0)
-				{
-					// somebody disconnected, get his details and print
-					getpeername(sd, (struct sockaddr *)&address,
-							(socklen_t *)&addrlen);
-					printf("Host disconnected, ip %s, port %d \n",
-						inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+            if (FD_ISSET(sd, &readfds))
+            {
+                // check if it was for closing, and also read the
+                // incoming message
+                if ((valread = read(sd, recv, 1024)) == 0)
+                {
+                    // somebody disconnected, get his details and print
+                    getpeername(sd, (struct sockaddr *)&address,
+                            (socklen_t *)&addrlen);
+                    printf("Host disconnected, ip %s, port %d \n",
+                        inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
-					// close the socket and mark as 0 in list for reuse
-					close(sd);
-					client_socket[i] = 0;
-				}
+                    // close the socket and mark as 0 in list for reuse
+                    close(sd);
+                    client_socket[i] = 0;
+                }
 
-				// echo back the message that came in
-				else
-				{
-					// get his details and print
-					getpeername(sd, (struct sockaddr *)&address,
-							(socklen_t *)&addrlen);
+                // echo back the message that came in
+                else
+                {
+                    // get his details and print
+                    getpeername(sd, (struct sockaddr *)&address,
+                            (socklen_t *)&addrlen);
+                    printf("[%s, player%d] ", inet_ntoa(address.sin_addr), i+1);
+                    connect6_packet_process(i, client_socket, recv, 1024);
 
-					hdr_parsing(recv, 1024, &hdr);
+                    // set the string terminating NULL byte on the end
+                    // of the data read
+                    /*
+                    if (sending_len > 0) {
+                        send(sd, sending, sending_len, 0);
+                    }
+                    */
+                }
+            }
+        }
+    }
 
-					switch(hdr.type)
-					{
-						case GAME_START:
-						printf("GAME_START packet received by %s\n", inet_ntoa(address.sin_addr));
-						break;
-
-						case PUT:
-						printf("PUT packet received by %s\n", inet_ntoa(address.sin_addr));
-						break;
-
-						case TURN:
-						printf("TURN packet received by %s\n", inet_ntoa(address.sin_addr));
-						break;
-
-						case GAME_OVER:
-						printf("GAME_OVER packet received by %s\n", inet_ntoa(address.sin_addr));
-						break;
-
-						case ERROR:
-						printf("ERROR packet received by %s\n", inet_ntoa(address.sin_addr));
-						break;
-
-						case TIMEOUT:
-						printf("TIMEOUT packet received by %s\n", inet_ntoa(address.sin_addr));
-						break;
-
-						case GAME_DISCARD:
-						printf("GAME_DISCARD packet received by %s\n", inet_ntoa(address.sin_addr));
-						break;
-
-						default:
-						printf("Illegal packet received by %s\n", inet_ntoa(address.sin_addr));
-					}
-
-					// set the string terminating NULL byte on the end
-					// of the data read
-					// send(sd, sending, , 0);
-				}
-			}
-		}
-	}
-
-	return 0;
+    return 0;
 }
