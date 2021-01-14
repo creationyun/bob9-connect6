@@ -15,5 +15,4 @@
 // Fixed Game Options
 #define PORT 8089
 #define MAX_PLAYER 2
-#define BOARD_SIZE 19
 #define TIMEOUT_SECONDS 30

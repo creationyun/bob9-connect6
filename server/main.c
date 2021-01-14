@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 					getpeername(sd, (struct sockaddr *)&address,
 							(socklen_t *)&addrlen);
 
-					hdr_parsing(recv, &hdr);
+					hdr_parsing(recv, 1024, &hdr);
 
 					switch(hdr.type)
 					{
