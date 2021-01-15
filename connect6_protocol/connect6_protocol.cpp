@@ -18,10 +18,12 @@ uint8_t EXPORTED game_start_data_parsing(const unsigned char *data_payload, size
     int i;
 
     if (data == NULL) return ERROR_MISUSE_FUNCTION;
-    if (data_payload_size < (size_t)(data->name_length) + 2) return ERROR_PROTOCOL_NOT_VALID;
+    if (data_payload_size < 2) return ERROR_PROTOCOL_NOT_VALID;
 
     data->req_res_flag = data_payload[0];
     data->name_length = data_payload[1];
+
+    if (data_payload_size < (size_t)(data->name_length) + 2) return ERROR_PROTOCOL_NOT_VALID;
 
     if (data->name_length > MAX_NAME_LENGTH) {
         return ERROR_EXCEED_NAME_LENGTH;
@@ -40,9 +42,11 @@ uint8_t EXPORTED put_turn_data_parsing(const unsigned char *data_payload, size_t
     int i;
 
     if (data == NULL) return ERROR_MISUSE_FUNCTION;
-    if (data_payload_size < (size_t)(data->coord_num)*2 + 1) return ERROR_PROTOCOL_NOT_VALID;
+    if (data_payload_size < 1) return ERROR_PROTOCOL_NOT_VALID;
 
     data->coord_num = data_payload[0];
+
+    if (data_payload_size < (size_t)(data->coord_num)*2 + 1) return ERROR_PROTOCOL_NOT_VALID;
 
     if (data->coord_num > 2) {
         return ERROR_PROTOCOL_NOT_VALID;
@@ -62,10 +66,12 @@ uint8_t EXPORTED game_over_data_parsing(const unsigned char *data_payload, size_
     int i;
 
     if (data == NULL) return ERROR_MISUSE_FUNCTION;
-    if (data_payload_size < (size_t)(data->coord_num)*2 + 2) return ERROR_PROTOCOL_NOT_VALID;
+    if (data_payload_size < 2) return ERROR_PROTOCOL_NOT_VALID;
 
     data->result = data_payload[0];
     data->coord_num = data_payload[1];
+
+    if (data_payload_size < (size_t)(data->coord_num)*2 + 2) return ERROR_PROTOCOL_NOT_VALID;
 
     if (data->coord_num > 6) {
         return ERROR_PROTOCOL_NOT_VALID;

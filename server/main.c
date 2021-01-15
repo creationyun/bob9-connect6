@@ -9,7 +9,8 @@ int main(int argc, char *argv[])
     int opt = 1;
     int addrlen = sizeof(address);
 
-    unsigned char recv[1025];
+    unsigned char recv[1025], sending[1025];
+    size_t sending_len;
     fd_set readfds;
 
     // char *message = "Connect6 Server v0.1 (beta) \r\n";
@@ -133,6 +134,12 @@ int main(int argc, char *argv[])
             }
 
             // but if there are no socket, send ERROR packet
+            if (i == MAX_PLAYER) {
+                make_error_payload(sending, 1024, &sending_len, 0, ERROR_EXCEED_CAPACITY);
+                send(new_socket, sending, sending_len, 0);
+
+                printf("Reject the socket %d because of player counts\n", new_socket);
+            }
         }
 
         // else it's some IO operation on some other socket

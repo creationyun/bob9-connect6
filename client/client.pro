@@ -10,10 +10,12 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    multiplay.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    multiplay.h
 
 FORMS += \
     mainwindow.ui

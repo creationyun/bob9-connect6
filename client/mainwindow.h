@@ -3,9 +3,8 @@
 
 #include <QMainWindow>
 #include <QInputDialog>
-#include <QTcpSocket>
 #include <QGraphicsScene>
-#include "../connect6_protocol/connect6_protocol.h"
+#include "multiplay.h"
 
 // Fixed Game Options
 #define PORT 8089

@@ -14,9 +14,10 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
     size_t sending_len;
     struct Connect6ProtocolHdr hdr;
     struct GameStartData rcv_gsd, snd_gsd;
-    struct PutTurnData ptd;
+    struct PutTurnData rcv_ptd, snd_ptd;
     struct GameOverData god;
     int i, all_joined = 1;
+    int other_player_idx = (player_idx + 1) % MAX_PLAYER;
 
     if (sending == NULL) return;
 
@@ -33,8 +34,15 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
             &rcv_gsd
         );
 
-        // Game is not started and the player is not joined
-        if (!game_started && !player_game_joined[player_idx]) {
+        if (game_started) {
+            // Game is already started: send ERROR
+            make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_GAME_ALREADY_STARTED);
+            send(player_sockets[player_idx], sending, sending_len, 0);
+        } else if (player_game_joined[player_idx]) {
+            // Player is already joined: send ERROR
+            make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_EXCEED_CAPACITY);
+            send(player_sockets[player_idx], sending, sending_len, 0);
+        } else {
             // Register to server's variables
             player_game_joined[player_idx] = 1;
             strncpy(player_name[player_idx], rcv_gsd.name, rcv_gsd.name_length);
@@ -61,6 +69,15 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
                     // Send packet
                     send(player_sockets[i], sending, sending_len, 0);
                 }
+
+                // Send initial PUT, TURN packet - PUT(player1, 1, 9, 9)
+                snd_ptd.coord_num = 1;
+                snd_ptd.xy[0] = BOARD_SIZE/2;
+                snd_ptd.xy[1] = BOARD_SIZE/2;
+                make_turn_payload(sending, recv_buf_size, &sending_len, 1, snd_ptd);
+                send(player_sockets[1], sending, sending_len, 0);  // send to player2
+                make_put_payload(sending, recv_buf_size, &sending_len, 1, snd_ptd);
+                send(player_sockets[0], sending, sending_len, 0);  // send to player1
             }
         }
 
@@ -68,6 +85,21 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
 
         case PUT: /////////////////////////////////////////////////////////////
         printf("PUT packet received\n");
+        
+        put_turn_data_parsing(
+            recv_buf+PROTOCOL_HEADER_SIZE,
+            recv_buf_size-PROTOCOL_HEADER_SIZE,
+            &rcv_ptd
+        );
+
+        if (game_started) {
+            // copy data
+            snd_ptd = rcv_ptd;
+
+            // Make TURN payload and send
+            make_turn_payload(sending, recv_buf_size, &sending_len, player_idx+1, snd_ptd);
+            send(player_sockets[other_player_idx], sending, sending_len, 0);
+        }
 
         break;
 
