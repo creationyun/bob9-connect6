@@ -58,6 +58,14 @@ enum ErrorType {
     ERROR_MISUSE_FUNCTION = 0xFF
 };
 
+enum GameResultType {
+    RESULT_GAME_DISCARDED,
+    RESULT_WIN_OR_LOSE,
+    RESULT_DRAW,
+    RESULT_CONNECTION_ERROR,
+    RESULT_TIMEOUT
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif

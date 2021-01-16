@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set scene in Connect6 game board graphic view
     scene = new QGraphicsScene(this);
+
+    scene->setSceneRect(-12.5, -12.5, 500-25, 500-25);
+
     ui->gvConnect6Board->setScene(scene);
 
     // Use brush with board color and pen
@@ -42,8 +45,8 @@ void MainWindow::on_pbMultiPlayButton_clicked()
 {
     bool ok;
     QString addr = QInputDialog::getText(this, tr("Connect to Server"),
-                                            tr("Game Server Address:"), QLineEdit::Normal,
-                                            tr(""), &ok);
+                                         tr("Game Server Address:"), QLineEdit::Normal,
+                                         tr(""), &ok);
 
     // When clicked cancel button or addr is empty
     if (!ok || addr.isEmpty())
@@ -51,6 +54,7 @@ void MainWindow::on_pbMultiPlayButton_clicked()
         return;
     }
 
-    MultiPlay multiplay;
-    multiplay.GamePlay(addr, PORT);
+    MultiPlay *multiplay = new MultiPlay(scene, ui->txedMsg);
+    multiplay->setAddr(addr, PORT);
+    multiplay->start();
 }
