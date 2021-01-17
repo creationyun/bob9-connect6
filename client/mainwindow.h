@@ -5,6 +5,7 @@
 #include <QInputDialog>
 #include <QGraphicsScene>
 #include "multiplay.h"
+#include "boardscene.h"
 
 // Fixed Game Options
 #define PORT 8089
@@ -31,6 +32,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    QGraphicsScene *scene;
+    BoardScene *scene;
 };
 #endif // MAINWINDOW_H

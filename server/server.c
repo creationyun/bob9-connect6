@@ -18,6 +18,7 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
     struct GameOverData god;
     int i, all_joined = 1;
     int other_player_idx = (player_idx + 1) % MAX_PLAYER;
+    uint8_t game_result = 0;
 
     if (sending == NULL) return;
 
@@ -93,39 +94,184 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
         );
 
         if (game_started) {
+            // apply to server's board
+            for (i = 0; i < rcv_ptd.coord_num; i++) {
+                server_board[rcv_ptd.xy[2*i+1]][rcv_ptd.xy[2*i]] = player_idx+1;
+
+                // checking connect-6
+                check_connect6(rcv_ptd.xy[2*i], rcv_ptd.xy[2*i+1], player_idx+1, &game_result);
+                if (game_result == RESULT_WIN_OR_LOSE) break;
+            }
+
             // copy data
             snd_ptd = rcv_ptd;
 
             // Make TURN payload and send
             make_turn_payload(sending, recv_buf_size, &sending_len, player_idx+1, snd_ptd);
             send(player_sockets[other_player_idx], sending, sending_len, 0);
+
+            if (game_result == RESULT_WIN_OR_LOSE) {
+                // GAME_OVER data field setting
+                god.coord_num = 0;
+                //god.xy[0] = x;
+                //god.xy[1] = y;
+                god.result = game_result;
+
+                // Make GAME_OVER payload and send
+                make_game_over_payload(sending, recv_buf_size, &sending_len, player_idx+1, god);
+                send(player_sockets[player_idx], sending, sending_len, 0);
+                send(player_sockets[other_player_idx], sending, sending_len, 0);
+            }
+        } else {
+            // Game is not started: send ERROR
+            make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_GAME_NOT_STARTED);
+            send(player_sockets[player_idx], sending, sending_len, 0);
         }
 
         break;
 
-        case TURN:
+        case TURN: /////////////////////////////////////////////////////////////
         printf("TURN packet received\n");
+
+        // receiving TURN packet of server is not allowed.
+        // so, send ERROR
+        make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_PROTOCOL_NOT_VALID);
+        send(player_sockets[player_idx], sending, sending_len, 0);
         break;
 
-        case GAME_OVER:
+        case GAME_OVER: /////////////////////////////////////////////////////////////
         printf("GAME_OVER packet received\n");
+
+        // receiving GAME_OVER packet of server is not allowed.
+        // so, send ERROR
+        make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_PROTOCOL_NOT_VALID);
+        send(player_sockets[player_idx], sending, sending_len, 0);
         break;
 
-        case ERROR:
+        case ERROR: /////////////////////////////////////////////////////////////
         printf("ERROR packet received\n");
         break;
 
-        case TIMEOUT:
+        case TIMEOUT: /////////////////////////////////////////////////////////////
         printf("TIMEOUT packet received\n");
+
+        // receiving TIMEOUT packet of server is not allowed.
+        // so, send ERROR
+        make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_PROTOCOL_NOT_VALID);
+        send(player_sockets[player_idx], sending, sending_len, 0);
         break;
 
-        case GAME_DISCARD:
+        case GAME_DISCARD: /////////////////////////////////////////////////////////////
         printf("GAME_DISCARD packet received\n");
+
+        if (game_started) {
+            // GAME_OVER data field setting
+            god.coord_num = 0;
+            god.result = RESULT_GAME_DISCARDED;
+
+            // Make GAME_OVER payload and send
+            make_game_over_payload(sending, recv_buf_size, &sending_len, other_player_idx+1, god);
+            send(player_sockets[other_player_idx], sending, sending_len, 0);
+        } else {
+            make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_GAME_NOT_STARTED);
+            send(player_sockets[player_idx], sending, sending_len, 0);
+        }
         break;
 
-        default:
+        default: /////////////////////////////////////////////////////////////
         printf("Illegal packet received\n");
+
+        // send ERROR
+        make_error_payload(sending, recv_buf_size, &sending_len, player_idx+1, ERROR_PROTOCOL_NOT_VALID);
+        send(player_sockets[player_idx], sending, sending_len, 0);
     }
 
     free((unsigned char *)sending);
+}
+
+
+void check_connect6(uint8_t x, uint8_t y, uint8_t target_player, uint8_t *game_result)
+{
+    if (game_result == NULL) return;
+
+    int i = y, j = x;
+    int count = 0;
+
+    // x check (<- ->)
+    while (j > 0 && server_board[i][j-1] == target_player)
+        j--;
+    
+    while (j < BOARD_SIZE && server_board[i][j] == target_player) {
+        count++;
+        j++;
+    }
+    
+    if (count >= 6) // Connect-6 complete!
+    {
+        *game_result = RESULT_WIN_OR_LOSE;
+        return;
+    }
+
+    // y check (^ v)
+    i = y;
+    j = x;
+    count = 0;
+
+    while (i > 0 && server_board[i-1][j] == target_player)
+        i--;
+    
+    while (i < BOARD_SIZE && server_board[i][j] == target_player) {
+        count++;
+        i++;
+    }
+    
+    if (count >= 6) // Connect-6 complete!
+    {
+        *game_result = RESULT_WIN_OR_LOSE;
+        return;
+    }
+
+    // cross check (right-bottom)
+    i = y;
+    j = x;
+    count = 0;
+
+    while (i > 0 && j > 0 && server_board[i-1][j-1] == target_player) {
+        i--;
+        j--;
+    }
+    
+    while (i < BOARD_SIZE && j < BOARD_SIZE && server_board[i][j] == target_player) {
+        count++;
+        i++;
+        j++;
+    }
+    
+    if (count >= 6) // Connect-6 complete!
+    {
+        *game_result = RESULT_WIN_OR_LOSE;
+        return;
+    }
+
+    // cross check (left-bottom)
+    i = y;
+    j = x;
+    count = 0;
+
+    while (i > 0 && j < BOARD_SIZE && server_board[i-1][j+1] == target_player) {
+        i--;
+        j++;
+    }
+    
+    while (i < BOARD_SIZE && j >= 0 && server_board[i][j] == target_player) {
+        count++;
+        i++;
+        j--;
+    }
+    
+    if (count >= 6) // Connect-6 complete!
+    {
+        *game_result = RESULT_WIN_OR_LOSE;
+        return;
+    }
 }

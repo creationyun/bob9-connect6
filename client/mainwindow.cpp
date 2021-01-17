@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // Set scene in Connect6 game board graphic view
-    scene = new QGraphicsScene(this);
+    scene = new BoardScene(this);
 
     scene->setSceneRect(-12.5, -12.5, 500-25, 500-25);
 
@@ -56,5 +56,5 @@ void MainWindow::on_pbMultiPlayButton_clicked()
 
     MultiPlay *multiplay = new MultiPlay(scene, ui->txedMsg);
     multiplay->setAddr(addr, PORT);
-    multiplay->start();
+    multiplay->play();
 }
