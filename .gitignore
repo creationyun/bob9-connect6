@@ -71,9 +71,10 @@ Thumbs.db
 *.dll
 *.exe
 
-# Build folder
+# Build or test client folder
 build-*
 bin/
+client/
 
 # CMake
 CMakeLists.txt.user
