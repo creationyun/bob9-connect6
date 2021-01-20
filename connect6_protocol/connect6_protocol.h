@@ -97,32 +97,32 @@ extern "C" {
         uint8_t xy[2*6];
     };
 
-    void EXPORTED hdr_parsing(const unsigned char *payload, size_t payload_size, struct Connect6ProtocolHdr *header);
+    uint8_t EXPORTED hdr_parsing(const unsigned char *payload, size_t payload_size, struct Connect6ProtocolHdr *header);
     uint8_t EXPORTED game_start_data_parsing(const unsigned char *data_payload, size_t data_payload_size, struct GameStartData *data);
     uint8_t EXPORTED put_turn_data_parsing(const unsigned char *data_payload, size_t data_payload_size, struct PutTurnData *data);
     uint8_t EXPORTED game_over_data_parsing(const unsigned char *data_payload, size_t data_payload_size, struct GameOverData *data);
-    void EXPORTED error_data_parsing(const unsigned char *data_payload, size_t data_payload_size, uint8_t *error_type);
+    uint8_t EXPORTED error_data_parsing(const unsigned char *data_payload, size_t data_payload_size, uint8_t *error_type);
 
-    void EXPORTED make_game_start_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
-                                          const uint8_t player_num, const struct GameStartData data);
+    uint8_t EXPORTED make_game_start_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
+                                             const uint8_t player_num, const struct GameStartData data);
 
-    void EXPORTED make_put_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
-                                   const uint8_t player_num, const struct PutTurnData data);
+    uint8_t EXPORTED make_put_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
+                                      const uint8_t player_num, const struct PutTurnData data);
 
-    void EXPORTED make_turn_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
-                                    const uint8_t player_num, const struct PutTurnData data);
+    uint8_t EXPORTED make_turn_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
+                                       const uint8_t player_num, const struct PutTurnData data);
 
-    void EXPORTED make_game_over_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
-                                         const uint8_t player_num, const struct GameOverData data);
+    uint8_t EXPORTED make_game_over_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
+                                            const uint8_t player_num, const struct GameOverData data);
 
-    void EXPORTED make_error_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
-                                     const uint8_t player_num, const uint8_t error_type);
+    uint8_t EXPORTED make_error_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
+                                        const uint8_t player_num, const uint8_t error_type);
 
-    void EXPORTED make_timeout_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
-                                       const uint8_t player_num);
+    uint8_t EXPORTED make_timeout_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
+                                          const uint8_t player_num);
 
-    void EXPORTED make_game_discard_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
-                                            const uint8_t player_num);
+    uint8_t EXPORTED make_game_discard_payload(unsigned char *payload, size_t payload_size, size_t *payload_len_written,
+                                               const uint8_t player_num);
 
 #ifdef __cplusplus
 }

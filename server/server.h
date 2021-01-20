@@ -25,6 +25,7 @@ extern uint8_t server_board[BOARD_SIZE][BOARD_SIZE];
 
 void connect6_packet_process(int player_idx, const int *player_sockets,
                              const unsigned char *recv_buf, size_t recv_buf_size);
-void check_connect6(uint8_t x, uint8_t y, uint8_t target_player, uint8_t *game_result);
+void check_connect6(uint8_t x, uint8_t y, uint8_t target_player, uint8_t *game_result_code, uint8_t *result_xy);
+void init_game();
 
 #endif

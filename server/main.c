@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
     size_t sending_len;
     fd_set readfds;
 
+    struct GameOverData god;
+
     // char *message = "Connect6 Server v0.1 (beta) \r\n";
     
     // Initialize all client_socket[] to 0 so not checked
@@ -145,8 +147,6 @@ int main(int argc, char *argv[])
         // else it's some IO operation on some other socket
         for (i = 0; i < MAX_PLAYER; i++)
         {
-            
-
             sd = client_socket[i];
 
             if (FD_ISSET(sd, &readfds))
@@ -164,6 +164,26 @@ int main(int argc, char *argv[])
                     // close the socket and mark as 0 in list for reuse
                     close(sd);
                     client_socket[i] = 0;
+                    player_game_joined[i] = 0;
+
+                    // announce connection error to another player
+                    if (game_started && client_socket[(i+1)%MAX_PLAYER])
+                    {
+                        printf("ERROR packet sent - ERROR_OTHER_PLAYER_DISCONNECTED\n");
+                        make_error_payload(sending, 1024, &sending_len, (i+1)%MAX_PLAYER+1,
+                            ERROR_OTHER_PLAYER_DISCONNECTED);
+                        send(client_socket[(i+1)%MAX_PLAYER], sending, sending_len, 0);
+
+                        printf("GAME_OVER packet sent - RESULT_CONNECTION_ERROR\n");
+                        god.coord_num = 0;
+                        god.result = RESULT_CONNECTION_ERROR;
+                        make_game_over_payload(sending, 1024, &sending_len, (i+1)%MAX_PLAYER+1, god);
+                        send(client_socket[(i+1)%MAX_PLAYER], sending, sending_len, 0);
+
+                        // game end.
+                        game_started = 0;
+                        init_game();
+                    }
                 }
 
                 // echo back the message that came in
