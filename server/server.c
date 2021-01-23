@@ -4,6 +4,7 @@ char player_name[MAX_PLAYER][MAX_NAME_LENGTH] = {};
 int player_game_joined[MAX_PLAYER] = {};
 int game_started = 0;
 uint8_t server_board[BOARD_SIZE][BOARD_SIZE] = {};
+int player_turn = 0;
 
 
 void connect6_packet_process(int player_idx, const int *player_sockets,
@@ -104,6 +105,9 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
                 send(player_sockets[1], sending, sending_len, 0);  // send to player2
                 make_put_payload(sending, recv_buf_size, &sending_len, 1, snd_ptd);
                 send(player_sockets[0], sending, sending_len, 0);  // send to player1
+                
+                // Set player turn
+                player_turn = 2;
             }
         }
 
@@ -149,9 +153,13 @@ void connect6_packet_process(int player_idx, const int *player_sockets,
             snd_ptd = rcv_ptd;
 
             printf("TURN packet sent\n");
+
             // Make TURN payload and send
             make_turn_payload(sending, recv_buf_size, &sending_len, player_idx+1, snd_ptd);
             send(player_sockets[other_player_idx], sending, sending_len, 0);
+
+            // Set player turn
+            player_turn = other_player_idx+1;
 
             if (game_result == RESULT_WIN_OR_LOSE) {
                 // GAME_OVER data field setting

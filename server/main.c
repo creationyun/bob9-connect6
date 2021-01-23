@@ -6,6 +6,7 @@ int main(int argc, char *argv[])
     int master_socket, new_socket, client_socket[MAX_PLAYER], activity,
         i, valread, sd, max_sd;
     struct sockaddr_in address;
+    struct timeval timeout;
     int opt = 1;
     int addrlen = sizeof(address);
 
@@ -88,13 +89,38 @@ int main(int argc, char *argv[])
                 max_sd = sd;
         }
 
-        // wait for an activity on one of the sockets, timeout is NULL,
-        // so wait indefinitely
-        activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+        // wait for an activity on one of the sockets
+        timeout.tv_sec = TIMEOUT_SECONDS;
+        timeout.tv_usec = 0;
+        activity = select(max_sd + 1, &readfds, NULL, NULL, &timeout);
 
         if ((activity < 0) && (errno != EINTR))
         {
-            printf("select error");
+            printf("select error\n");
+            exit(EXIT_FAILURE);
+        }
+        else if (activity == 0)
+        {
+            if (game_started)
+            {
+                printf("TIMEOUT packet sent by player%d\n", player_turn);
+                make_timeout_payload(sending, 1024, &sending_len, player_turn);
+                send(client_socket[0], sending, sending_len, 0);
+                send(client_socket[1], sending, sending_len, 0);
+                
+                printf("GAME_OVER packet sent - RESULT_TIMEOUT\n");
+                god.coord_num = 0;
+                god.result = RESULT_TIMEOUT;
+                make_game_over_payload(sending, 1024, &sending_len, player_turn%MAX_PLAYER+1, god);
+                send(client_socket[0], sending, sending_len, 0);
+                send(client_socket[1], sending, sending_len, 0);
+
+                // game end.
+                game_started = 0;
+                init_game();
+            }
+            
+            continue;
         }
 
         // if something happened on the master socket,

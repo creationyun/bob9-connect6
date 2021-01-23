@@ -22,6 +22,7 @@ extern char player_name[MAX_PLAYER][MAX_NAME_LENGTH];
 extern int player_game_joined[MAX_PLAYER];
 extern int game_started;
 extern uint8_t server_board[BOARD_SIZE][BOARD_SIZE];
+extern int player_turn;
 
 void connect6_packet_process(int player_idx, const int *player_sockets,
                              const unsigned char *recv_buf, size_t recv_buf_size);
