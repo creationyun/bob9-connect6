@@ -1,7 +1,13 @@
+CC=gcc
+LDFLAGS=-Wl,-rpath,../connect6_protocol
+
 all: server
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $^
+
 server: main.o server.o ../connect6_protocol/libconnect6_protocol.so
-	gcc -o server main.o server.o -L../connect6_protocol -lconnect6_protocol
+	$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
 	rm -f server *.o
