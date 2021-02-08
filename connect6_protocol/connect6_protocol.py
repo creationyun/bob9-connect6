@@ -90,7 +90,7 @@ def hdr_parsing(payload: Union[bytes, str, bytearray]):
     if payload_size < Connect6ProtocolSettings.PROTOCOL_HEADER_SIZE:
         return ErrorType.ERROR_PROTOCOL_NOT_VALID, None
 
-    if payload in str:
+    if type(payload) is str:
         _payload = bytes(payload, encoding='utf-8')
     else:
         _payload = payload
@@ -114,7 +114,7 @@ def game_start_data_parsing(data_payload: Union[bytes, str, bytearray]):
     if data_payload_size < 2:
         return ErrorType.ERROR_PROTOCOL_NOT_VALID, None
 
-    if data_payload in str:
+    if type(data_payload) is str:
         _data_payload = bytes(data_payload, encoding='utf-8')
     else:
         _data_payload = data_payload
@@ -144,7 +144,7 @@ def put_turn_data_parsing(data_payload: Union[bytes, str, bytearray]):
     if data_payload_size < 1:
         return ErrorType.ERROR_PROTOCOL_NOT_VALID, None
 
-    if data_payload in str:
+    if type(data_payload) is str:
         _data_payload = bytes(data_payload, encoding='utf-8')
     else:
         _data_payload = data_payload
@@ -184,7 +184,7 @@ def game_over_data_parsing(data_payload: Union[bytes, str, bytearray]):
     if data_payload_size < 2:
         return ErrorType.ERROR_PROTOCOL_NOT_VALID, None
 
-    if data_payload in str:
+    if type(data_payload) is str:
         _data_payload = bytes(data_payload, encoding='utf-8')
     else:
         _data_payload = data_payload
@@ -222,7 +222,7 @@ def error_data_parsing(data_payload: Union[bytes, str, bytearray]):
     if data_payload_size < 1:
         return ErrorType.ERROR_PROTOCOL_NOT_VALID, None
 
-    if data_payload in str:
+    if type(data_payload) is str:
         _data_payload = bytes(data_payload, encoding='utf-8')
     else:
         _data_payload = data_payload
