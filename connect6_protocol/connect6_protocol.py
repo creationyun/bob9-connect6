@@ -96,7 +96,7 @@ def hdr_parsing(payload: Union[bytes, str, bytearray]):
         _payload = payload
 
     header.version = _payload[0]
-    header.type = _payload[1]
+    header._type = _payload[1]
     header.player_num = _payload[2]
     header.data_length = _payload[3]
 
