@@ -14,7 +14,7 @@
 #include "../connect6_protocol/connect6_protocol.h"
 
 // Fixed Game Options
-#define PORT 8089
+//#define PORT 8089
 #define MAX_PLAYER 2
 #define TIMEOUT_SECONDS 30
 

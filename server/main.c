@@ -1,10 +1,12 @@
 #include "server.h"
 
+void usage();
 
 int main(int argc, char *argv[])
 {
     int master_socket, new_socket, client_socket[MAX_PLAYER], activity,
         i, valread, sd, max_sd;
+    uint16_t port;
     struct sockaddr_in address;
     struct timeval timeout;
     int opt = 1;
@@ -15,6 +17,13 @@ int main(int argc, char *argv[])
     fd_set readfds;
 
     struct GameOverData god;
+
+    if (argc < 2) {
+        usage();
+        return -1;
+    }
+
+    port = atoi(argv[1]);
 
     // char *message = "Connect6 Server v0.1 (beta) \r\n";
     
@@ -44,7 +53,7 @@ int main(int argc, char *argv[])
     // Type of socket created
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(port);
 
     // Bind the socket to any, port 8089
     if (bind(master_socket, (struct sockaddr *)&address,
@@ -54,7 +63,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    printf("Listener on port %d \n", PORT);
+    printf("Listener on port %d \n", port);
 
     // Try to specify maximum of 3 pending connections for he master socket
     if (listen(master_socket, 3) < 0)
@@ -235,4 +244,11 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+
+void usage()
+{
+    printf("Usage : server <port>\n");
+    printf("Sample: server 8089\n");
 }
