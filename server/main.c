@@ -219,6 +219,7 @@ int main(int argc, char *argv[])
                     getpeername(sd, (struct sockaddr *)&address,
                             (socklen_t *)&addrlen);
                     printf("[%s, player%d] ", inet_ntoa(address.sin_addr), i+1);
+                    sleep(1);
                     connect6_packet_process(i, client_socket, recv, 1024);
 
                     // set the string terminating NULL byte on the end
